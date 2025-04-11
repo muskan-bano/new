@@ -5,7 +5,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
 import pandas as pd
-import speech_recognition as sr
 import sqlite3
 from app import get_db_path, get_transactions, get_budget
 import streamlit as st
@@ -84,32 +83,6 @@ def get_budget_recommendation(user_id):
     monthly_avg = df_expense.groupby('month')['amount'].sum().mean()
     return f"Based on past data, your recommended budget is Rs{monthly_avg:.2f}"
 
-# ----------------------------------
-# 🎙️ Voice Expense Entry Assistant
-# ----------------------------------
-
-def listen_and_parse_expense():
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("🎤 Listening for expense entry...")
-        audio = recognizer.listen(source)
-    try:
-        command = recognizer.recognize_google(audio)
-        print(f"You said: {command}")
-        # Simple format: "Add 200 groceries today"
-        tokens = command.lower().split()
-        amount = float(tokens[tokens.index("add") + 1])
-        category = tokens[tokens.index("add") + 2]
-        date = datetime.now().strftime('%Y-%m-%d')
-        return {
-            'amount': amount,
-            'category': category.title(),
-            'date': date,
-            'type': 'expense'
-        }
-    except Exception as e:
-        print("Voice input error:", e)
-        return None
 
 # --------------------------------------
 # 💹 AI Investment Recommendations
